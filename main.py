@@ -108,6 +108,9 @@ class Route:
         self.destination = input("Send to: ")
         self.cost = float(input("Delivery Cost: "))
 
+    def apply_new_cost(self):
+        self.cost = float(input("Enter new delivery cost: "))
+
 class RouteDatabase:
     db = WarehouseDatabase()
     db.load_from_csv("warehouse_database.csv")
@@ -141,10 +144,29 @@ class RouteDatabase:
                 return True
 
     def edit_route(self, item_id):
-        item_id = int(input('Enter the ID of the Route that you want to edit: '))
-        for route in self.routes:
-            if route.item_id == item_id:
-                route.input_data()
+        item_id = int(input('Enter the ID of the Route that you want to edit delivery cost: '))
+        for item in self.routes:
+            if item.item_id == item_id:
+                item.apply_new_cost()
+                print("Successfully!")
+                time.sleep(1)
+                return True
+        print("Route ID not found")
+        time.sleep(2)
+        return False
+
+
+    def remove_item(self, item_id):
+        item_id = int(input('Enter the ID of the Route that you want to remove: '))
+        for item in self.routes:
+            if item.item_id == item_id:
+                self.routes.remove(item)
+                print ("Successfully!")
+                time.sleep(1)
+                return True
+        print("Route ID not found")
+        time.sleep(2)
+        return False
 
     def show_item(self):
         print("Transportation Network:")
@@ -274,6 +296,7 @@ if __name__ == "__main__":
             os.system('cls')
         if c == '3':
             db.remove_item(None)
+            Warehouse.next_id -= 1
             os.system('cls')
         while c == '4':
             item = Route()
@@ -281,11 +304,17 @@ if __name__ == "__main__":
             if not rdb.check_route(item.origin,item.destination):
                 rdb.add_route(item)
                 break;
+            else:
+                Route.next_id -= 1
+                time.sleep(2)
             os.system('cls')
-        #while c == '5':
-
-        #if c == '6':
-
+        if c == '5':
+            rdb.edit_route(None)
+            os.system('cls')
+        if c == '6':
+            rdb.remove_item(None)
+            Route.next_id -= 1
+            os.system('cls')
         #if c == '7':
 
         if c == '8':
