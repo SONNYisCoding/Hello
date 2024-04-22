@@ -303,6 +303,7 @@ if __name__ == "__main__":
             item.input_data()
             if not rdb.check_route(item.origin,item.destination):
                 rdb.add_route(item)
+                os.system('cls')
                 break;
             else:
                 Route.next_id -= 1
