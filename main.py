@@ -16,6 +16,11 @@ class Warehouse:
         self.item_location = input('Enter the location of your warehouse: ')
         self.item_capacity = input('Your warehouse capacity (%): ')
 
+    def apply_edit_data(self, item_name, item_location, item_capacity):
+        self.item_name = item_name
+        self.item_location = item_location
+        self.item_capacity = item_capacity
+
 class WarehouseDatabase:
     def __init__(self):
         self.warehouse_items = []
@@ -26,15 +31,25 @@ class WarehouseDatabase:
     def check_warehouse(self, item_name):
         for item in self.warehouse_items:
             if item.item_name == item_name:
-                print('This warehouse already exist')
                 return True
         return False
 
     def edit_item(self, item_name):
         item_name = input('Enter the Warehouse name that you want to edit: ')
+        new_name = item_name
+        new_location = None
+        new_capacity = None
         for item in self.warehouse_items:
             if item.item_name == item_name:
-                item.input_data()
+                while self.check_warehouse(new_name):
+                    os.system('cls')
+                    new_name = input('Enter a new name: ')
+                    new_location = input('Enter the location of your warehouse: ')
+                    new_capacity = input('Your warehouse capacity (%): ')
+                    if self.check_warehouse(new_name):
+                        print('This warehouse already exist')
+                        time.sleep(2)
+                item.apply_edit_data(new_name,new_location,new_capacity)
                 print ("Successfully!")
                 time.sleep(1)
                 return True
@@ -94,6 +109,8 @@ class Route:
         self.cost = float(input("Delivery Cost: "))
 
 class RouteDatabase:
+    db = WarehouseDatabase()
+    db.load_from_csv("warehouse_database.csv")
     def __init__(self):
         self.routes = []
 
@@ -106,6 +123,28 @@ class RouteDatabase:
             if item.origin == origin and item.destination == destination:
                 print('This route already exist')
                 return True
+            # Check origin and destination
+            check_origin = False
+            check_destination = False
+            for w_item in db.warehouse_items:
+                if origin == w_item.item_name:
+                    check_origin = True
+                if destination == w_item.item_name:
+                    check_destination = True
+            if not check_destination or not check_origin:
+                print('Some of your warehouses does not exist')
+                print('Please add a new warehouse or enter another route')
+                return True
+            # Check origin same destination
+            if origin == destination:
+                print('Please enter another destination')
+                return True
+
+    def edit_route(self, item_id):
+        item_id = int(input('Enter the ID of the Route that you want to edit: '))
+        for route in self.routes:
+            if route.item_id == item_id:
+                route.input_data()
 
     def show_item(self):
         print("Transportation Network:")
@@ -130,6 +169,57 @@ class RouteDatabase:
                 route.cost = float(row['Cost'])
                 route.item_id = int(row['ID'])
                 self.add_route(route)
+
+# Shortest route algorithm
+class Pair:
+    def __init__(self, first, second):
+        self.first = first
+        self.second = second
+
+class Node:
+
+    def __init__(self, vertexNumber):
+        self.vertexNumber = vertexNumber
+        self.children = []
+
+    def Add_child(self, vNumber, length):
+        p = Pair(vNumber, length)
+        self.children.append(p)
+
+# Function to find the distance
+def dijkstraDist(g, s, path):
+    dist = [int('inf') for i in range(len(g))]
+    visited = [False for i in range(len(g))]
+
+    for i in range(len(g)):
+        path[i] = -1
+    dist[s] = 0
+    path[s] = -1
+    current = s
+    sett = set()
+    while (True):
+        visited[current] = True
+        for i in range(len(g[current].children)):
+            v = g[current].children[i].first
+            if (visited[v]):
+                continue
+            sett.add(v)
+            alt = dist[current] + g[current].children[i].second
+            if (alt < dist[v]):
+                dist[v] = alt
+                path[v] = current
+        if current in sett:
+            sett.remove(current)
+        if (len(sett) == 0):
+            break
+        minDist = int('inf')
+        index = 0
+        for a in sett:
+            if (dist[a] < minDist):
+                minDist = dist[a]
+                index = a
+        current = index
+    return dist
 def menu():
     c = ''
     while c not in ['1','2','3','4','5','6','7','8','9','Q','q']:
@@ -174,6 +264,7 @@ if __name__ == "__main__":
                 os.system('cls')
                 break;
             else:
+                print('This warehouse already exist')
                 print('Please change your Warehouse name or edit Warehouse')
                 Warehouse.next_id -= 1
                 time.sleep(2)
@@ -184,13 +275,14 @@ if __name__ == "__main__":
         if c == '3':
             db.remove_item(None)
             os.system('cls')
-        # No 4 not work properly
         while c == '4':
             item = Route()
             item.input_data()
-            rdb.add_route(item)
-            break;
-        #if c == '5':
+            if not rdb.check_route(item.origin,item.destination):
+                rdb.add_route(item)
+                break;
+            os.system('cls')
+        #while c == '5':
 
         #if c == '6':
 
