@@ -22,6 +22,8 @@ class Warehouse:
         self.item_capacity = item_capacity
 
 class WarehouseDatabase:
+    name_old = None # For Route change after edit warehouse
+    name_new = None
     def __init__(self):
         self.warehouse_items = []
 
@@ -49,6 +51,8 @@ class WarehouseDatabase:
                     if self.check_warehouse(new_name):
                         print('This warehouse already exist')
                         time.sleep(2)
+                self.name_old = item_name
+                self.name_new = new_name
                 item.apply_edit_data(new_name,new_location,new_capacity)
                 print ("Successfully!")
                 time.sleep(1)
@@ -62,6 +66,7 @@ class WarehouseDatabase:
         for item in self.warehouse_items:
             if item.item_name == item_name:
                 self.warehouse_items.remove(item)
+                self.name_old = item_name
                 print ("Successfully!")
                 time.sleep(1)
                 return True
@@ -167,6 +172,20 @@ class RouteDatabase:
         print("Route ID not found")
         time.sleep(2)
         return False
+
+    # Applying changes from edited warehouses
+    def apply_warehouse_edit(self, old_name, new_name):
+        for item in self.routes:
+            if item.origin == old_name:
+                item.origin = new_name
+            if item.destination == old_name:
+                item.destination = new_name
+
+    # Applying removed warehouse
+    def apply_warehouse_remove(self, name):
+        for route in self.routes[:]:
+            if route.origin == name or route.destination == name:
+                self.routes.remove(route)
 
     def show_item(self):
         print("Transportation Network:")
@@ -293,9 +312,11 @@ if __name__ == "__main__":
                 os.system('cls')
         if c == '2':
             db.edit_item(None)
+            rdb.apply_warehouse_edit(db.name_old, db.name_new)
             os.system('cls')
         if c == '3':
             db.remove_item(None)
+            rdb.apply_warehouse_remove(db.name_old)
             Warehouse.next_id -= 1
             os.system('cls')
         while c == '4':
@@ -314,7 +335,6 @@ if __name__ == "__main__":
             os.system('cls')
         if c == '6':
             rdb.remove_item(None)
-            Route.next_id -= 1
             os.system('cls')
         #if c == '7':
 
