@@ -1,4 +1,5 @@
-Item ID,Item Name
-2,B
-3,C
-4,D
+Item ID,Item Name,Item Location,Item Capacity
+1,A,HCM,30.0
+3,C,Ha Noi,30.0
+5,B,Nha Trang,33.0
+6,Ko,Korea,99.0
