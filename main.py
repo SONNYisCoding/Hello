@@ -323,10 +323,14 @@ if __name__ == "__main__":
                 time.sleep(2)
                 os.system('cls')
         if c == '2':
+            db.show_item()
+            print()
             db.edit_item(None)
             rdb.apply_warehouse_edit(db.name_old, db.name_new)
             os.system('cls')
         if c == '3':
+            db.show_item()
+            print()
             db.remove_item(None)
             rdb.apply_warehouse_remove(db.name_old)
             Warehouse.next_id -= 1
@@ -343,9 +347,13 @@ if __name__ == "__main__":
                 time.sleep(2)
             os.system('cls')
         if c == '5':
+            rdb.show_item()
+            print()
             rdb.edit_route(None)
             os.system('cls')
         if c == '6':
+            rdb.show_item()
+            print()
             rdb.remove_item(None)
             os.system('cls')
         if c == '7':
