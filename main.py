@@ -229,7 +229,7 @@ class Node:
 
 # Function to find the distance
 def dijkstraDist(g, s, path):
-    dist = [int('inf') for i in range(len(g))]
+    dist = [float('inf') for i in range(len(g))]
     visited = [False for i in range(len(g))]
 
     for i in range(len(g)):
@@ -253,7 +253,7 @@ def dijkstraDist(g, s, path):
             sett.remove(current)
         if (len(sett) == 0):
             break
-        minDist = int('inf')
+        minDist = float('inf')
         index = 0
         for a in sett:
             if (dist[a] < minDist):
@@ -261,6 +261,17 @@ def dijkstraDist(g, s, path):
                 index = a
         current = index
     return dist
+
+# Function to print the shortest path
+def printPath(path, i, s):
+    if (i != s):
+        if (path[i] == -1):
+            print("No available routes")
+            return
+        printPath(path, path[i], s)
+        for item in db.warehouse_items:
+            if path[i] == item.item_id:
+                print(item.item_name ,end=" => ")
 def menu():
     c = ''
     while c not in ['1','2','3','4','5','6','7','8','9','Q','q']:
@@ -286,6 +297,7 @@ if __name__ == "__main__":
     # Variables
     warehouse_file = "warehouse_database.csv"
     route_file = "route_database.csv"
+    origin_id = destination_id = 0
     c = ''
     db = WarehouseDatabase()
     rdb = RouteDatabase()
@@ -337,18 +349,49 @@ if __name__ == "__main__":
             rdb.remove_item(None)
             os.system('cls')
         if c == '7':
-            warehouse = Warehouse()
-            route = Route()
+            wares = Warehouse()
             origin = input('Go from: ')
             destination = input('Go to: ')
+            stats = "Ready to go!" # For the capacity status
             v = []
             if not db.check_warehouse(origin) or not db.check_warehouse(destination):
                 print('Some of the warehouses does not exist')
+                time.sleep(2)
+                os.system('cls')
                 continue
             else:
-                for item in warehouse.item_id:
+                for item in range(wares.next_id-1):
                     a = Node(item)
                     v.append(a)
+                for route in rdb.routes:
+                    # Get the IDs
+                    for item in db.warehouse_items:
+                        if route.origin == item.item_name:
+                            origin_id = item.item_id
+                        if route.destination == item.item_name:
+                            destination_id = item.item_id
+                    v[origin_id].Add_child(destination_id, route.cost)
+                # Get origin and destination ID's
+                for item in db.warehouse_items:
+                    if origin == item.item_name:
+                        origin_id = item.item_id
+                        if item.item_capacity == 0:
+                            stats = "Nothing to delivery!"
+                    if destination == item.item_name:
+                        destination_id = item.item_id
+                        if item.item_capacity == 100:
+                            stats = "Destination Warehouse is full!"
+                path = [0 for i in range(len(v))]
+                distance = dijkstraDist(v,origin_id,path)
+                # Print the cost
+                print("Lowest cost from {} to {} is: {}".format(origin, destination, distance[destination_id]));
+                # Print the path
+                printPath(path,destination_id,origin_id)
+                print(destination)
+                # Print the status
+                print("Status: ",stats)
+                input('Done Reading? Press Enter to continue..')
+                os.system('cls')
         if c == '8':
             db.show_item()
             print()
