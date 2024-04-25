@@ -336,8 +336,19 @@ if __name__ == "__main__":
         if c == '6':
             rdb.remove_item(None)
             os.system('cls')
-        #if c == '7':
-
+        if c == '7':
+            warehouse = Warehouse()
+            route = Route()
+            origin = input('Go from: ')
+            destination = input('Go to: ')
+            v = []
+            if not db.check_warehouse(origin) or not db.check_warehouse(destination):
+                print('Some of the warehouses does not exist')
+                continue
+            else:
+                for item in warehouse.item_id:
+                    a = Node(item)
+                    v.append(a)
         if c == '8':
             db.show_item()
             print()
